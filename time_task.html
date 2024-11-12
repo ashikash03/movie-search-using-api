@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Date and Time</title>
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #deb396; /* Light brown background */
+        }
+        .container-box {
+            background-color: #ba6553; /* Light reddish-brown */
+            padding: 40px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        #date-time {
+            margin-top: 20px;
+            color: #f2e3d5; /* Light cream color for date and time */
+        }
+        .btn-custom {
+            background-color: #902a21;
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #741c15;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Current Date and Time</h1>
+        <div class="container-box mt-4">
+            <form>
+                <div class="mb-3 row justify-content-center">
+                    <label for="timezone" class="col-sm-2 col-form-label text-light">Select Timezone:</label>
+                    <div class="col-sm-4">
+                        <select class="form-select" id="timezone">
+                            <option selected disabled>Select Timezone</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" id="fetch-time-btn" class="btn btn-custom">Date and Time</button>
+            </form>
+            <p id="date-time" class="mt-3"></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to fetch timezones and populate dropdown
+        async function fetchTimezones() {
+            try {
+                let response = await fetch('https://worldtimeapi.org/api/timezone');
+                let timezones = await response.json();
+
+                // Populate dropdown with timezones
+                const timezoneSelect = document.getElementById('timezone');
+                timezones.forEach(zone => {
+                    const option = document.createElement('option');
+                    option.value = zone;
+                    option.text = zone;
+                    timezoneSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching timezones:', error);
+            }
+        }
+
+        // Function to fetch and display date and time based on the selected timezone
+        async function fetchDateTime() {
+            const selectedTimezone = document.getElementById('timezone').value;
+            if (!selectedTimezone) {
+                alert('Please select a timezone');
+                return;
+            }
+
+            try {
+                let response = await fetch(`https://worldtimeapi.org/api/timezone/${selectedTimezone}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch date and time');
+                }
+                let dateTimeData = await response.json();
+
+                // Display the current date and time in the paragraph element
+                document.getElementById('date-time').textContent = `Current Date and Time in ${selectedTimezone}: ${dateTimeData.datetime}`;
+            } catch (error) {
+                console.error('Error fetching date and time:', error);
+            }
+        }
+
+        // Event listener for button click to fetch date and time
+        document.getElementById('fetch-time-btn').addEventListener('click', fetchDateTime);
+
+        // Call the function to populate the dropdown with timezones when the page loads
+        fetchTimezones();
+    </script>
+</body>
+</html>
